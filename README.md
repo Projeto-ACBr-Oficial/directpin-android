@@ -1,4 +1,4 @@
-# DirectPIN - Kotlin
+# DirectPIN - Android
 
 Este é um projeto Android (Kotlin + Jetpack Compose) que demonstra como integrar com o DirectPIN através de Android Intents.
 
