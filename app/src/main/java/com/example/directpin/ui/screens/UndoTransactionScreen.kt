@@ -15,9 +15,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Undo
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -94,28 +92,17 @@ fun UndoTransactionScreen(
     }
 
     undoResponse?.let { resp ->
-        AlertDialog(
-            onDismissRequest = {
+        OperationResultScreen(
+            title = "Desfazimento",
+            result = resp.result,
+            finalResult = resp.finalResult,
+            message = resp.message,
+            onDismiss = {
                 undoResponse = null
                 onFinish(resp)
-            },
-            icon = {
-                Icon(
-                    Icons.Filled.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp)
-                )
-            },
-            title = { Text("Resultado") },
-            text = { Text(resp.message) },
-            confirmButton = {
-                Button(onClick = {
-                    undoResponse = null
-                    onFinish(resp)
-                }) { Text("OK") }
             }
         )
+        return
     }
 
     Scaffold(

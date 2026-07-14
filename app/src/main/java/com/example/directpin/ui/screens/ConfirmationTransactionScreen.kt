@@ -15,9 +15,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.TaskAlt
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -93,28 +91,17 @@ fun ConfirmationTransactionScreen(
     }
 
     confirmationResponse?.let { resp ->
-        AlertDialog(
-            onDismissRequest = {
+        OperationResultScreen(
+            title = "Confirmação",
+            result = resp.result,
+            finalResult = resp.finalResult,
+            message = resp.message,
+            onDismiss = {
                 confirmationResponse = null
                 onFinish(resp)
-            },
-            icon = {
-                Icon(
-                    Icons.Filled.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp)
-                )
-            },
-            title = { Text("Resultado") },
-            text = { Text(resp.message) },
-            confirmButton = {
-                Button(onClick = {
-                    confirmationResponse = null
-                    onFinish(resp)
-                }) { Text("OK") }
             }
         )
+        return
     }
 
     Scaffold(

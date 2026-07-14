@@ -34,6 +34,7 @@ import com.example.directpin.ui.screens.PaymentTypeScreen
 import com.example.directpin.ui.screens.CancelTransactionScreen
 import com.example.directpin.ui.screens.ConfirmationTransactionScreen
 import com.example.directpin.ui.screens.UndoTransactionScreen
+import com.example.directpin.ui.screens.TransactionResultScreen
 import com.example.directpin.ui.theme.DirectPinTheme
 
 class MainActivity : ComponentActivity() {
@@ -49,8 +50,8 @@ class MainActivity : ComponentActivity() {
 
 enum class Screen { INIT, TRANSACTION, CANCEL_TRANSACTION, CONFIRMATION, UNDO }
 
-/** Sub-telas do fluxo de transação: valor → tipo de pagamento */
-enum class TransactionFlow { AMOUNT_ENTRY, PAYMENT_TYPE }
+/** Sub-telas do fluxo de transação: valor → tipo de pagamento → resultado */
+enum class TransactionFlow { AMOUNT_ENTRY, PAYMENT_TYPE, RESULT }
 
 @Composable
 fun DirectPinApp() {
@@ -136,23 +137,30 @@ fun DirectPinApp() {
             when (currentScreen) {
                 Screen.INIT -> Unit // já tratado pelo retorno antecipado acima
                 Screen.TRANSACTION -> {
-                    if (transactionFlow == TransactionFlow.AMOUNT_ENTRY) {
-                        AmountEntryScreen(
+                    when (transactionFlow) {
+                        TransactionFlow.AMOUNT_ENTRY -> AmountEntryScreen(
                             onPay = { amountCents ->
                                 pendingAmountCents = amountCents
                                 transactionFlow = TransactionFlow.PAYMENT_TYPE
                             }
                         )
-                    } else {
-                        pendingAmountCents?.let { amountCents ->
+                        TransactionFlow.PAYMENT_TYPE -> pendingAmountCents?.let { amountCents ->
                             PaymentTypeScreen(
                                 amountCents = amountCents,
                                 onFinish = { response ->
                                     transactionResponse = response
-                                    transactionFlow = TransactionFlow.AMOUNT_ENTRY
-                                    pendingAmountCents = null
+                                    transactionFlow = TransactionFlow.RESULT
                                 },
                                 onBack = {
+                                    transactionFlow = TransactionFlow.AMOUNT_ENTRY
+                                    pendingAmountCents = null
+                                }
+                            )
+                        }
+                        TransactionFlow.RESULT -> transactionResponse?.let { response ->
+                            TransactionResultScreen(
+                                response = response,
+                                onNewSale = {
                                     transactionFlow = TransactionFlow.AMOUNT_ENTRY
                                     pendingAmountCents = null
                                 }

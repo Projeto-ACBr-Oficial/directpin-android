@@ -78,7 +78,6 @@ fun PaymentTypeScreen(
     var option by remember { mutableStateOf(PaymentOption.DEBITO) }
     var installments by remember { mutableStateOf("2") }
     var processing by remember { mutableStateOf(false) }
-    var transactionResponse by remember { mutableStateOf<TransactionResponse?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var autoConfirm by remember { mutableStateOf(true) }
@@ -95,7 +94,7 @@ fun PaymentTypeScreen(
             resultCode = result.resultCode,
             data = result.data,
             responseClass = TransactionResponse::class.java,
-            onSuccess = { transactionResponse = it; onFinish(it) },
+            onSuccess = { onFinish(it) },
             onError = { errorMessage = it }
         )
     }
@@ -139,30 +138,10 @@ fun PaymentTypeScreen(
         )
         processing = true
         errorMessage = null
-        transactionResponse = null
         val intent = DirectPinIntentHelper.createRequestIntent(request)
         launcher.launch(intent)
     }
 
-    if (transactionResponse != null) {
-        val resp = transactionResponse!!
-        AlertDialog(
-            onDismissRequest = { transactionResponse = null },
-            icon = {
-                Icon(
-                    Icons.Filled.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp)
-                )
-            },
-            title = { Text("Resultado") },
-            text = { Text(resp.message) },
-            confirmButton = {
-                Button(onClick = { transactionResponse = null }) { Text("OK") }
-            }
-        )
-    }
     if (errorMessage != null) {
         AlertDialog(
             onDismissRequest = { errorMessage = null },
