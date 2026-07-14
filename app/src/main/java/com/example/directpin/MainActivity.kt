@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material.icons.filled.TaskAlt
+import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Payment
+import androidx.compose.material.icons.outlined.TaskAlt
+import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -28,6 +32,8 @@ import com.example.directpin.ui.screens.InitScreen
 import com.example.directpin.ui.screens.AmountEntryScreen
 import com.example.directpin.ui.screens.PaymentTypeScreen
 import com.example.directpin.ui.screens.CancelTransactionScreen
+import com.example.directpin.ui.screens.ConfirmationTransactionScreen
+import com.example.directpin.ui.screens.UndoTransactionScreen
 import com.example.directpin.ui.theme.DirectPinTheme
 
 class MainActivity : ComponentActivity() {
@@ -41,7 +47,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-enum class Screen { INIT, TRANSACTION, CANCEL_TRANSACTION }
+enum class Screen { INIT, TRANSACTION, CANCEL_TRANSACTION, CONFIRMATION, UNDO }
 
 /** Sub-telas do fluxo de transação: valor → tipo de pagamento */
 enum class TransactionFlow { AMOUNT_ENTRY, PAYMENT_TYPE }
@@ -88,10 +94,36 @@ fun DirectPinApp() {
                     icon = {
                         Icon(
                             imageVector = if (currentScreen == Screen.CANCEL_TRANSACTION) Icons.Filled.Cancel else Icons.Outlined.Cancel,
-                            contentDescription = "Cancelar"
+                            contentDescription = "Estornar Transação"
                         )
                     },
-                    label = { Text("Cancelar") }
+                    label = { Text("Estornar Transação") }
+                )
+                NavigationBarItem(
+                    selected = currentScreen == Screen.CONFIRMATION,
+                    onClick = {
+                        currentScreen = Screen.CONFIRMATION
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = if (currentScreen == Screen.CONFIRMATION) Icons.Filled.TaskAlt else Icons.Outlined.TaskAlt,
+                            contentDescription = "Confirmar Transação"
+                        )
+                    },
+                    label = { Text("Confirmar Transação") }
+                )
+                NavigationBarItem(
+                    selected = currentScreen == Screen.UNDO,
+                    onClick = {
+                        currentScreen = Screen.UNDO
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = if (currentScreen == Screen.UNDO) Icons.Filled.Undo else Icons.Outlined.Undo,
+                            contentDescription = "Desfazer Transação"
+                        )
+                    },
+                    label = { Text("Desfazer Transação") }
                 )
             }
         }
@@ -129,6 +161,14 @@ fun DirectPinApp() {
                     }
                 }
                 Screen.CANCEL_TRANSACTION -> CancelTransactionScreen(
+                    initialNsu = transactionResponse?.nsu,
+                    onFinish = { }
+                )
+                Screen.CONFIRMATION -> ConfirmationTransactionScreen(
+                    initialNsu = transactionResponse?.nsu,
+                    onFinish = { }
+                )
+                Screen.UNDO -> UndoTransactionScreen(
                     initialNsu = transactionResponse?.nsu,
                     onFinish = { }
                 )
