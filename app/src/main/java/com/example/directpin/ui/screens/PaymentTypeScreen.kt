@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,6 +25,7 @@ import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material3.AlertDialog
@@ -33,9 +36,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -74,6 +80,12 @@ fun PaymentTypeScreen(
     var processing by remember { mutableStateOf(false) }
     var transactionResponse by remember { mutableStateOf<TransactionResponse?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    var autoConfirm by remember { mutableStateOf(true) }
+    var isTyped by remember { mutableStateOf(false) }
+    var isPreAuth by remember { mutableStateOf(false) }
+    var printReceipt by remember { mutableStateOf(true) }
+    var showOptionsSheet by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -119,7 +131,11 @@ fun PaymentTypeScreen(
             transactionType = transactionType,
             creditType = creditType,
             installments = installmentsStr,
-            interestType = interestType
+            interestType = interestType,
+            autoConfirm = autoConfirm,
+            isTyped = isTyped,
+            isPreAuth = isPreAuth,
+            printReceipt = printReceipt
         )
         processing = true
         errorMessage = null
@@ -166,6 +182,20 @@ fun PaymentTypeScreen(
         )
     }
 
+    if (showOptionsSheet) {
+        TransactionOptionsSheet(
+            autoConfirm = autoConfirm,
+            onAutoConfirmChange = { autoConfirm = it },
+            isTyped = isTyped,
+            onIsTypedChange = { isTyped = it },
+            isPreAuth = isPreAuth,
+            onIsPreAuthChange = { isPreAuth = it },
+            printReceipt = printReceipt,
+            onPrintReceiptChange = { printReceipt = it },
+            onDismiss = { showOptionsSheet = false }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -178,6 +208,17 @@ fun PaymentTypeScreen(
                                 contentDescription = "Voltar"
                             )
                         }
+                    }
+                },
+                actions = {
+                    TextButton(onClick = { showOptionsSheet = true }) {
+                        Icon(
+                            Icons.Filled.Tune,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Opções da Transação")
                     }
                 }
             )
@@ -363,5 +404,57 @@ private fun OptionTile(
                 modifier = Modifier.size(24.dp)
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TransactionOptionsSheet(
+    autoConfirm: Boolean,
+    onAutoConfirmChange: (Boolean) -> Unit,
+    isTyped: Boolean,
+    onIsTypedChange: (Boolean) -> Unit,
+    isPreAuth: Boolean,
+    onIsPreAuthChange: (Boolean) -> Unit,
+    printReceipt: Boolean,
+    onPrintReceiptChange: (Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+        ) {
+            Text(
+                "Opções da transação",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            LabeledSwitch("Confirmar automaticamente", autoConfirm, onAutoConfirmChange)
+            LabeledSwitch("Transação digitada", isTyped, onIsTypedChange)
+            LabeledSwitch("Pré-autorização", isPreAuth, onIsPreAuthChange)
+            LabeledSwitch("Imprimir comprovante", printReceipt, onPrintReceiptChange)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun LabeledSwitch(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }

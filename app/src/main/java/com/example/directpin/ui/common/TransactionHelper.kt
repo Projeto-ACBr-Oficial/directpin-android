@@ -23,7 +23,10 @@ object TransactionHelper {
         creditType: String,
         installments: String,
         interestType: String = TransactionConstants.DEFAULT_INTEREST_TYPE,
-        autoConfirm: Boolean = true
+        autoConfirm: Boolean = true,
+        isTyped: Boolean = false,
+        isPreAuth: Boolean = false,
+        printReceipt: Boolean = true
     ): TransactionRequest {
         val amount = amountDigits.toLongOrNull() ?: 0L
         val finalCreditType = if (transactionType == TransactionConstants.TYPE_CREDIT) {
@@ -44,11 +47,11 @@ object TransactionHelper {
             typeTransaction = transactionType,
             creditType = finalCreditType,
             installment = finalInstallments,
-            isTyped = false,
-            isPreAuth = false,
+            isTyped = isTyped,
+            isPreAuth = isPreAuth,
             autoConfirm = autoConfirm,
             interestType = interestType,
-            printReceipt = true
+            printReceipt = printReceipt
         )
     }
 }
