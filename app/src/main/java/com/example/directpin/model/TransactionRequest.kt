@@ -1,9 +1,5 @@
 package com.example.directpin.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
 data class TransactionRequest(
     val type: String,
     val amount: Long,
@@ -12,7 +8,7 @@ data class TransactionRequest(
     val installment: Int,
     val isTyped: Boolean,
     val isPreAuth: Boolean,
+    val autoConfirm: Boolean,
     val interestType: String,
-    val printReceipt: Boolean,
-    val entityIdentifier: String? = null
-) : Parcelable
+    val printReceipt: Boolean
+)

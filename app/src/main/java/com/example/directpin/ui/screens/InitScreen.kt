@@ -1,7 +1,5 @@
 package com.example.directpin.ui.screens
 
-import android.app.Activity
-import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,10 +41,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.directpin.ui.common.DIRECT_PIN_ACTION
+import com.example.directpin.ui.common.DirectPinIntentHelper
+import com.example.directpin.ui.common.REQUEST_TYPE_INIT
 import com.example.directpin.model.InitRequest
 import com.example.directpin.model.InitResponse
-import com.google.gson.Gson
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.text.KeyboardActions
@@ -58,30 +56,26 @@ fun InitScreen(onSuccess: (InitResponse) -> Unit) {
     var token by remember { mutableStateOf("") }
     var processing by remember { mutableStateOf(false) }
     var initResponse by remember { mutableStateOf<InitResponse?>(null) }
-    val gson = remember { Gson() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         processing = false
-        if (result.resultCode == Activity.RESULT_OK) {
-            val json = result.data?.getStringExtra("response")
-            Log.d("InitScreen", "Response: $json")
-            if (!json.isNullOrEmpty()) {
-                initResponse = gson.fromJson(json, InitResponse::class.java)
-            }
-        }
+        DirectPinIntentHelper.processResponse(
+            resultCode = result.resultCode,
+            data = result.data,
+            responseClass = InitResponse::class.java,
+            onSuccess = { response -> initResponse = response }
+        )
     }
 
     val isValid = token.length == 4
 
     fun sendRequest() {
-        val request = InitRequest(type = "init", token = token)
+        val request = InitRequest(type = REQUEST_TYPE_INIT, token = token)
         Log.d("InitScreen", "Sending init request: $request")
-        val intent = Intent(DIRECT_PIN_ACTION).apply {
-            putExtra("request", gson.toJson(request))
-        }
+        val intent = DirectPinIntentHelper.createRequestIntent(request)
         processing = true
         launcher.launch(intent)
     }
@@ -150,7 +144,7 @@ fun InitScreen(onSuccess: (InitResponse) -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Insira o token de 4 dígitos para conectar",
+                        "Insira o token de 4 dígitos",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         ),

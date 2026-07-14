@@ -1,9 +1,5 @@
 package com.example.directpin.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
 data class TransactionResponse(
     val type: String,
     val result: Boolean,
@@ -11,13 +7,15 @@ data class TransactionResponse(
     val amount: Long = 0,
     val nsu: String = "",
     val nsuAcquirer: String = "",
+    val acquirerName: String = "",
     val panMasked: String = "",
     val date: Long = 0,
     val typeCard: String = "",
-    val finalResult: String = "",
+    val finalResult: FinalResult? = null,
     val codeResult: Int = 0,
+    val installments: Int = 0,
     val receiptContent: String = "",
     val serialNumber: String = "",
     val brand: String = "",
     val authCode: String = ""
-) : Parcelable
+)

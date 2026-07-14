@@ -1,6 +1,6 @@
 package com.example.directpin.model
 
-data class CancelTransactionRequest(
+data class UndoTransactionRequest(
     val type: String,
     val nsu: String,
 )

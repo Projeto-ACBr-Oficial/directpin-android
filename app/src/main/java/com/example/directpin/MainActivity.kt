@@ -52,12 +52,10 @@ fun DirectPinApp() {
     var transactionFlow by remember { mutableStateOf(TransactionFlow.AMOUNT_ENTRY) }
     var pendingAmountCents by remember { mutableStateOf<Long?>(null) }
     var transactionResponse by remember { mutableStateOf<TransactionResponse?>(null) }
-    var isInitialized by remember { mutableStateOf(false) }
 
-    if (!isInitialized) {
+    if (currentScreen == Screen.INIT) {
         InitScreen(
             onSuccess = {
-                isInitialized = true
                 currentScreen = Screen.TRANSACTION
             }
         )
@@ -104,12 +102,7 @@ fun DirectPinApp() {
                 .padding(paddingValues)
         ) {
             when (currentScreen) {
-                Screen.INIT -> InitScreen(
-                    onSuccess = {
-                        isInitialized = true
-                        currentScreen = Screen.TRANSACTION
-                    }
-                )
+                Screen.INIT -> Unit // já tratado pelo retorno antecipado acima
                 Screen.TRANSACTION -> {
                     if (transactionFlow == TransactionFlow.AMOUNT_ENTRY) {
                         AmountEntryScreen(
